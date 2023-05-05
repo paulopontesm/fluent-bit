@@ -431,14 +431,6 @@ static int in_calyptia_fleet_collect(struct flb_input_instance *ins,
         cfgfp = fopen(cfgname, "w+");
         header = flb_sds_create_size(4096);
         flb_sds_printf(&header, 
-                       "[INPUT]\n"
-                       "    Name          calyptia_fleet\n"
-                       "    Api_Key       %s\n"
-                       "    fleet_id      %s\n"
-                       "    Host          %s\n"
-                       "    Port          %d\n"
-                       "    Config_Dir    %s\n"
-                       "    TLS           %s\n"
                        "[CUSTOM]\n"
                        "    Name          calyptia\n"
                        "    api_key       %s\n"
@@ -448,12 +440,6 @@ static int in_calyptia_fleet_collect(struct flb_input_instance *ins,
                        "    calyptia_host %s\n"
                        "    calyptia_port %d\n"
                        "    calyptia_tls  %s\n",
-                       ctx->api_key,
-                       ctx->fleet_id,
-                       ctx->ins->host.name,
-                       ctx->ins->host.port,
-                       ctx->config_dir,
-                       (ctx->ins->tls ? "On" : "Off"),
                        ctx->api_key,
                        ctx->fleet_id,
                        ctx->fleet_id,
@@ -707,5 +693,5 @@ struct flb_input_plugin in_calyptia_fleet_plugin = {
     .cb_flush_buf = NULL,
     .cb_exit      = in_calyptia_fleet_exit,
     .config_map   = config_map,
-    .flags        = FLB_INPUT_NET|FLB_INPUT_CORO|FLB_IO_OPT_TLS
+    .flags        = FLB_INPUT_NET|FLB_INPUT_CORO|FLB_IO_OPT_TLS|FLB_INPUT_PRIVATE
 };

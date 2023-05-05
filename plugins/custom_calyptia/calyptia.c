@@ -36,6 +36,7 @@ struct calyptia {
     flb_sds_t cloud_port;
     flb_sds_t machine_id;
     flb_sds_t fleet_id;
+    flb_sds_t config_dir;
 
 /* used for reporting chunk trace records. */
 #ifdef FLB_HAVE_CHUNK_TRACE
@@ -50,6 +51,7 @@ struct calyptia {
 
     /* instances */
     struct flb_input_instance *i;
+    struct flb_input_instance *f;
     struct flb_output_instance *o;
     struct flb_custom_instance *ins;
 };
@@ -299,6 +301,21 @@ static int cb_calyptia_init(struct flb_custom_instance *ins,
 
     if (ctx->fleet_id) {
         flb_output_set_property(ctx->o, "fleet_id", ctx->fleet_id);
+
+        ctx->f = flb_input_new(config, "calyptia_fleet", NULL, FLB_FALSE);
+        if (ctx->f == NULL) {
+            flb_plg_error(ctx->ins, "unable to load fleet management.");
+            flb_free(ctx);
+            return -1;
+        }
+
+        flb_input_set_property(ctx->f, "fleet_id", ctx->fleet_id);
+        flb_input_set_property(ctx->f, "host", ctx->cloud_host);
+        flb_input_set_property(ctx->f, "port", ctx->cloud_port);
+        if (ctx->config_dir) {
+            flb_input_set_property(ctx->f, "config_dir", ctx->config_dir);
+        }
+        flb_input_set_property(ctx->f, "api_key", ctx->api_key);
     }
 
     /* Override network details: development purposes only */
@@ -396,6 +413,11 @@ static struct flb_config_map config_map[] = {
      FLB_CONFIG_MAP_STR, "fleet_id", NULL,
      0, FLB_TRUE, offsetof(struct calyptia, fleet_id),
      "Fleet id to be used when registering agent in a fleet"
+    },
+    {
+     FLB_CONFIG_MAP_STR, "config_dir", NULL,
+     0, FLB_TRUE, offsetof(struct calyptia, config_dir),
+     "Directory used to temporarily store fleet configuration files."
     },
 
 #ifdef FLB_HAVE_CHUNK_TRACE
