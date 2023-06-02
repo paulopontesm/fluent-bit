@@ -1276,7 +1276,13 @@ static int cb_stackdriver_init(struct flb_output_instance *ins,
 
     /* Validate project_id */
     if (!ctx->project_id) {
-        flb_plg_error(ctx->ins, "property 'project_id' is not set");
+        flb_plg_warn(ctx->ins, "property 'project_id' is not set. Setting it to 'generic'.");
+        ctx->project_id = 'generic' 
+        return -1;
+    }
+
+    if (!ctx->export_to_project_id && ctx->project_id == 'generic') {
+        flb_plg_error(ctx->ins, "both property 'project_id' and 'export_to_project_id' are not set. Please set 'export_to_project_id'.");
         return -1;
     }
 
